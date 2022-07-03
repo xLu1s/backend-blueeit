@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model usuario {
+  id      Int       @id @default(autoincrement())
+  email   String    @unique @db.VarChar(45)
+  nick    String    @db.VarChar(45)
+  passw   String    @db.VarChar(45)
+  hilo    hilo[]
+  mensaje mensaje[]
+}
+
+model categoria {
+  id     Int    @id @default(autoincrement())
+  nombre String @db.VarChar(45)
+  hilo   hilo[]
+}
+
+model hilo {
+  id          Int        @id @default(autoincrement())
+  idusuario   Int?
+  usuario     usuario?   @relation(fields: [idusuario], references: [id], onDelete: NoAction)
+  idcategoria Int?
+  categoria   categoria? @relation(fields: [idcategoria], references: [id], onDelete: NoAction)
+  titulo      String     @db.VarChar(45)
+  mensaje     mensaje[]
+  createdAt DateTime @default(now())
+}
+
+model mensaje {
+  id        Int      @id @default(autoincrement())
+  mensaje   String   @db.VarChar(10485760)
+  idusuario Int?
+  usuario   usuario? @relation(fields: [idusuario], references: [id], onDelete: NoAction)
+  idhilo    Int?
+  hilo      hilo?    @relation(fields: [idhilo], references: [id], onDelete: NoAction)
+  createdAt DateTime @default(now())
+}
